@@ -38,9 +38,23 @@ class BillingJobApplicationTests {
 
 	@Test
 	void testJobExecution() throws Exception {
-		// ...
+		// given
+		JobParameters jobParameters = new JobParametersBuilder()
+				.addString("input.file", "input/billing-2023-01.csv")
+				.addString("output.file", "staging/billing-report-2023-01.csv")
+				.addJobParameter("data.year", 2023, Integer.class)
+				.addJobParameter("data.month", 1, Integer.class)
+				.toJobParameters();
+
+		// when
+		JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
+
+		// then
+		Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+		Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-01.csv")));
+		Assertions.assertEquals(1000, JdbcTestUtils.countRowsInTable(jdbcTemplate, "BILLING_DATA"));
 		Path billingReport = Paths.get("staging", "billing-report-2023-01.csv");
 		Assertions.assertTrue(Files.exists(billingReport));
-		Assertions.assertEquals(1562, Files.lines(billingReport).count());
+		Assertions.assertEquals(781, Files.lines(billingReport).count());
 	}
 }
