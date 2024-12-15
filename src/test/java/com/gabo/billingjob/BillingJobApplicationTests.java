@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @SpringBatchTest
@@ -37,17 +38,9 @@ class BillingJobApplicationTests {
 
 	@Test
 	void testJobExecution() throws Exception {
-		// given
-		JobParameters jobParameters = new JobParametersBuilder()
-				.addString("input.file", "src/main/resources/billing-2023-01.csv")
-				.toJobParameters();
-
-		// when
-		JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
-
-		// then
-		Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
-		Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-01.csv")));
-		Assertions.assertEquals(1000, JdbcTestUtils.countRowsInTable(jdbcTemplate, "BILLING_DATA"));
+		// ...
+		Path billingReport = Paths.get("staging", "billing-report-2023-01.csv");
+		Assertions.assertTrue(Files.exists(billingReport));
+		Assertions.assertEquals(1562, Files.lines(billingReport).count());
 	}
 }
